@@ -42,6 +42,8 @@ table{border-collapse:collapse;width:100%;font-size:.92rem}
 th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--bd)}
 .w{color:var(--bad);text-decoration:line-through}.r{color:var(--ok);font-weight:700}
 .y{background:var(--warn);padding:0 3px;border-radius:3px}
+input.t{flex:1;min-width:0;font:inherit;border:1px solid var(--bd);border-radius:10px;padding:9px 12px;background:var(--bg);color:var(--tx)}
+#qr div{padding:4px 0}
 select{font:inherit;background:var(--bg);color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:4px}
 </style>
 </head>
@@ -49,6 +51,32 @@ select{font:inherit;background:var(--bg);color:var(--tx);border:1px solid var(--
 <main>
 <h1>✍️ বাংলা বানান প্রুফরিডার</h1>
 <p class="sub">.docx ফাইল দিন — ভুল বানান কেটে যাবে, পাশে সঠিক বানান বোল্ড হয়ে বসবে। সব কাজ আপনার ব্রাউজারেই হয়, ফাইল কোথাও আপলোড হয় না।</p>
+
+<div class="card"><h2>🔎 দ্রুত বানান যাচাই</h2>
+ <div class="row" style="margin:0"><input class="t" id="qw" placeholder="একটি বা কয়েকটি শব্দ লিখুন (স্পেস দিয়ে আলাদা)"><button id="qb">যাচাই</button></div>
+ <div id="qr" style="margin-top:8px"></div>
+ <div class="names" id="qn" style="color:var(--mut)"></div>
+</div>
+
+<div class="card"><h2>📖 সঠিক বানান কীভাবে বুঝবেন?</h2>
+ <p style="margin:0 0 8px">এই টুল নিজে বানান "জানে" না — সাইটের অভিধান ও প্রমিত বানান-তালিকার সঙ্গে মেলায়। তাই ফলের পাশে উৎস লেখা থাকে:</p>
+ <div>✏️ <b>সঠিক</b> = প্রমিত বানান-তালিকা থেকে (নির্ভরযোগ্য)</div>
+ <div>✏️ <b>সম্ভাব্য সঠিক</b> = অভিধান থেকে অনুমান, নিজে মিলিয়ে নিন</div>
+ <div>❓ <b>পাওয়া যায়নি</b> = নাম/বিদেশি শব্দও হতে পারে</div>
+ <div class="tw" style="margin-top:10px"><table>
+  <tr><th>ভুল</th><th>সঠিক</th><th>কেন</th><th>বাক্যে ব্যবহার</th></tr>
+  <tr><td class="w">অতিথী</td><td class="r">অতিথি</td><td>শেষে হ্রস্ব ই-কার</td><td>বাড়িতে আজ <b class="r">অতিথি</b> এসেছেন।</td></tr>
+  <tr><td class="w">দূর্ঘটনা</td><td class="r">দুর্ঘটনা</td><td>উপসর্গ "দুর্" — হ্রস্ব উ-কার</td><td>সড়ক <b class="r">দুর্ঘটনায়</b> কয়েকজন আহত হয়েছেন।</td></tr>
+  <tr><td class="w">পরিক্ষা</td><td class="r">পরীক্ষা</td><td>দীর্ঘ ঈ-কার</td><td>কাল আমার বাংলা <b class="r">পরীক্ষা</b>।</td></tr>
+  <tr><td class="w">উজ্জল</td><td class="r">উজ্জ্বল</td><td>যুক্তাক্ষর "জ্ব" লাগে</td><td>ভোরের আকাশ খুব <b class="r">উজ্জ্বল</b> ছিল।</td></tr>
+  <tr><td class="w">সন্ধা</td><td class="r">সন্ধ্যা</td><td>যুক্তাক্ষর "ন্ধ্য"</td><td><b class="r">সন্ধ্যায়</b> আমরা মাঠে গিয়েছিলাম।</td></tr>
+  <tr><td class="w">প্রতিযোগীতা</td><td class="r">প্রতিযোগিতা</td><td>ই-কারান্ত শব্দের পর "-তা" যোগ হলে ই-কার</td><td>স্কুলে আজ বিতর্ক <b class="r">প্রতিযোগিতা</b> হবে।</td></tr>
+  <tr><td class="w">সহযোগীতা</td><td class="r">সহযোগিতা</td><td>"-তা" যোগে ই-কার (সহযোগী + তা)</td><td>আপনার <b class="r">সহযোগিতার</b> জন্য ধন্যবাদ।</td></tr>
+  <tr><td class="w">মুহুর্ত</td><td class="r">মুহূর্ত</td><td>দীর্ঘ ঊ-কার</td><td>সেই <b class="r">মুহূর্তে</b> সবাই চুপ হয়ে গেল।</td></tr>
+ </table></div>
+ <p style="color:var(--mut);font-size:.88rem;margin:10px 0 0">⚠️ চূড়ান্তভাবে নিশ্চিত হতে বাংলা একাডেমির প্রমিত বানানরীতি ও অভিধান দেখে নিন।</p>
+ <div class="row" id="dlr" hidden><button class="s" id="dd">⬇️ অভিধান (.txt)</button><button class="s" id="dp">⬇️ বানান-তালিকা (.txt)</button></div>
+</div>
 
 <div class="grid">
  <div class="card"><h2>১. বাংলা অভিধান</h2>
@@ -70,6 +98,7 @@ select{font:inherit;background:var(--bg);color:var(--tx);border:1px solid var(--
 <div class="card"><h2>৩. প্রুফরিড করার ফাইল</h2>
  <label class="f" id="d3"><b>.docx ফাইল বেছে নিন বা টেনে আনুন</b><input type="file" id="ff" accept=".docx"></label>
  <div class="names" id="nf"></div>
+ <div class="names" style="color:var(--mut)">💡 অভিধান বা আপনার প্রমিত বানান ফাইল — যেকোনো একটি দিলেই চলবে।</div>
  <div class="stats">
   <div class="stat"><b id="s1">0</b><span>অভিধানের শব্দ</span></div>
   <div class="stat"><b id="s2">0</b><span>ভুল→সঠিক জোড়া</span></div>
@@ -102,6 +131,27 @@ const $=id=>document.getElementById(id);
 const norm=w=>w.normalize("NFC").replace(/[\u200c\u200d]/g,"").replace(/\u09c7\u09be/g,"\u09cb").replace(/\u09c7\u09d7/g,"\u09cc");
 let DICT=new Set(),MAP=new Map(),KNOWN=new Set(),docFile=null,OUT=null;
 
+let BASE={d:"",c:""};
+async function loadBase(){
+  for(const[k,f]of[["d","dictionary.txt"],["c","custom.txt"]]){
+    try{const r=await fetch(f,{cache:"no-cache"});if(r.ok){const t=await r.text();if(!/<html/i.test(t.slice(0,300)))BASE[k]=t.replace(/^\uFEFF/,"")}}catch(e){}
+  }
+}
+function quick(){
+  const ws=[...$("qw").value.matchAll(WRE())].map(m=>m[0]);
+  const box=$("qr");box.replaceChildren();
+  if(!ws.length)return;
+  if(!DICT.size&&!MAP.size&&!KNOWN.size){box.textContent="কোনো অভিধান বা বানান-তালিকা লোড নেই — নিচে ফাইল দিন।";return}
+  const ck=makeChecker(true);
+  for(const w of ws){
+    const x=ck(w),d=document.createElement("div");let t;
+    if(x.s==="ok")t=DICT.size||KNOWN.has(norm(w))?"✅ "+w+" — সঠিক":"❔ "+w+" — আপনার তালিকায় ভুল হিসেবে নেই (অভিধান নেই, তাই নিশ্চিত নই)";
+    else if(x.s==="fix")t="✏️ "+w+" → "+(x.src==="অভিধান"?"সম্ভাব্য সঠিক: "+x.f+" (অভিধান থেকে অনুমান)":"সঠিক: "+x.f+" (প্রমিত তালিকা অনুযায়ী)");
+    else if(x.s==="amb")t="🤔 "+w+" — সম্ভাব্য: "+x.f;
+    else t="❓ "+w+" — অভিধানে পাওয়া যায়নি";
+    d.textContent=t;box.appendChild(d);
+  }
+}
 const TC=new Map();let PW=[];
 async function readText(f){
   const key=f.name+"|"+f.size+"|"+f.lastModified;
@@ -138,6 +188,7 @@ async function refresh(){
   PW=[];$("msg").textContent="ফাইল পড়া হচ্ছে…";
   DICT=new Set();MAP=new Map();KNOWN=new Set();
   const first=$("dm").value==="1";
+  for(const line of BASE.d.split(/\r?\n/)){const m=line.trim().split(/[\t,;|]/)[0].match(new RegExp(WSRC));if(m)DICT.add(norm(m[0]))}
   for(const f of $("fd").files){
     for(const line of (await readText(f)).split(/\r?\n/)){
       if(first){const m=line.trim().split(/[\t,;|]/)[0].match(new RegExp(WSRC));if(m)DICT.add(norm(m[0]))}
@@ -154,16 +205,19 @@ async function refresh(){
     }
     for(const x of l.matchAll(WRE()))KNOWN.add(norm(x[0]));
   };
+  BASE.c.split(/\r?\n/).forEach(addLine);
   for(const f of $("fc").files){
     if(f.name.toLowerCase().endsWith(".json")){
       try{const o=JSON.parse(await readText(f));for(const[k,v]of Object.entries(o))if(typeof v==="string"&&norm(k)!==norm(v)){MAP.set(norm(k),v);for(const x of v.matchAll(WRE()))KNOWN.add(norm(x[0]))}}catch(e){}
     } else (await readText(f)).split(/\r?\n/).forEach(addLine);
   }
   $("qk").value.split(/\r?\n/).forEach(addLine);
+  $("dlr").hidden=!(BASE.d||BASE.c);$("dd").hidden=!BASE.d;$("dp").hidden=!BASE.c;
+  $("qn").textContent=(BASE.d||BASE.c)?"✔ সাইটের ডিফল্ট অভিধান/বানান-তালিকা লোড আছে।":"💡 অভিধান বা তালিকা না থাকলে নিচে ফাইল দিন।";
   $("s1").textContent=DICT.size.toLocaleString("bn");$("s2").textContent=MAP.size.toLocaleString("bn");$("s3").textContent=KNOWN.size.toLocaleString("bn");
   $("nd").textContent=[...$("fd").files].map(f=>f.name).join("، ");
   $("nc").textContent=[...$("fc").files].map(f=>f.name).join("، ");
-  $("go").disabled=!(docFile&&(DICT.size||MAP.size));
+  $("go").disabled=!docFile;
   $("msg").textContent=(PW.length?"⚠️ এই PDF থেকে বাংলা লেখা পড়া যায়নি (স্ক্যান করা ছবি বা পুরনো ফন্ট হতে পারে): "+PW.join("، ")+" — .txt বা .docx দিন। ":"")+((!DICT.size&&MAP.size)?"অভিধান দেওয়া হয়নি — শুধু আপনার তালিকার ভুলগুলো সংশোধিত হবে।":"");
 }
 
@@ -255,7 +309,7 @@ function render(rep){
   const rows=[...rep].map(([k,n])=>{const[a,b,c]=k.split("\u0001");return{a,b,c,n}}).sort((x,y)=>y.n-x.n);
   const fx=rows.filter(r=>r.c==="আপনার তালিকা"||r.c==="অভিধান"),fl=rows.filter(r=>!fx.includes(r));
   const sum=l=>l.reduce((s,r)=>s+r.n,0);
-  $("rt").textContent=`✅ সম্পন্ন — সংশোধন: ${sum(fx)} টি | সন্দেহজনক (হলুদ): ${sum(fl)} টি`;
+  $("rt").textContent=rows.length?`✅ সম্পন্ন — সংশোধন: ${sum(fx)} টি | সন্দেহজনক (হলুদ): ${sum(fl)} টি`:"✅ সম্পন্ন — কোনো ভুল পাওয়া যায়নি (ফাইলটা আগের মতোই ডাউনলোড করা যাবে)";
   const t=document.createElement("table"),h=t.insertRow();
   ["মূল শব্দ","সঠিক / পরামর্শ","উৎস","কতবার"].forEach(x=>{const th=document.createElement("th");th.textContent=x;h.appendChild(th)});
   for(const r of fx.concat(fl)){const tr=t.insertRow();const bad=fx.includes(r);
@@ -274,6 +328,7 @@ $("go").onclick=async()=>{
   $("go").disabled=true;$("msg").textContent="প্রসেস হচ্ছে…";$("res").hidden=true;
   try{
     await refresh();
+    if(!DICT.size&&!MAP.size&&!KNOWN.size){$("msg").textContent="অন্তত একটি ফাইল দিন — অভিধান অথবা আপনার প্রমিত বানান ফাইল (যেকোনো একটি হলেই চলবে)।";return}
     OUT=await processDoc(docFile,{sug:$("o1").checked,unk:$("o2").checked,col:$("o3").checked});
     ROWS=render(OUT.rep);$("msg").textContent="";
   }catch(e){$("msg").textContent="ফাইলটি প্রসেস করা যায়নি: "+e.message}
@@ -294,7 +349,11 @@ $("ff").onchange=e=>{docFile=e.target.files[0]||null;$("nf").textContent=docFile
   L.addEventListener("dragleave",()=>L.classList.remove("drag"));
   L.addEventListener("drop",e=>{e.preventDefault();L.classList.remove("drag");$(i).files=e.dataTransfer.files;$(i).dispatchEvent(new Event("change"))});
 });
-refresh();
+$("qb").onclick=quick;
+$("dd").onclick=()=>save("dictionary.txt","\uFEFF"+BASE.d);
+$("dp").onclick=()=>save("custom.txt","\uFEFF"+BASE.c);
+$("qw").addEventListener("keydown",e=>{if(e.key==="Enter")quick()});
+loadBase().then(refresh);
 </script>
 </body>
 </html>
