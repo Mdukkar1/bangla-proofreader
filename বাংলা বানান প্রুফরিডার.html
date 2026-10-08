@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>বাংলা বানান প্রুফরিডার</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+:root{--bg:#f6f5f1;--card:#fff;--tx:#1d1d1b;--mut:#6b6a64;--bd:#e3e1da;--ac:#1f6f5c;--acx:#fff;--bad:#c00000;--ok:#007a33;--warn:#fff3b0;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17181a;--card:#222426;--tx:#ececea;--mut:#a09f98;--bd:#34363a;--ac:#4cb89f;--acx:#10231e;--bad:#ff7b7b;--ok:#5fd68c;--warn:#5c5420}}
+:root[data-theme="dark"]{--bg:#17181a;--card:#222426;--tx:#ececea;--mut:#a09f98;--bd:#34363a;--ac:#4cb89f;--acx:#10231e;--bad:#ff7b7b;--ok:#5fd68c;--warn:#5c5420}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--tx);font-family:"Noto Sans Bengali","Hind Siliguri",system-ui,sans-serif;line-height:1.6}
+main{max-width:860px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:1.5rem;margin:.2em 0}
+.sub{color:var(--mut);margin:0 0 18px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:14px}
+.card h2{font-size:1.05rem;margin:0 0 10px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.grid{grid-template-columns:1fr}}
+label.f{display:block;border:2px dashed var(--bd);border-radius:12px;padding:14px;text-align:center;cursor:pointer;color:var(--mut)}
+label.f:hover,label.f.drag{border-color:var(--ac);color:var(--tx)}
+label.f b{display:block;color:var(--tx)}
+input[type=file]{display:none}
+.names{font-size:.85rem;color:var(--ac);margin-top:6px;word-break:break-all}
+textarea{width:100%;min-height:80px;border:1px solid var(--bd);border-radius:10px;padding:8px;background:var(--bg);color:var(--tx);font:inherit}
+.opt{display:flex;gap:8px;align-items:flex-start;margin:6px 0;font-size:.95rem}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 0}
+.stat{flex:1;min-width:120px;background:var(--bg);border-radius:10px;padding:8px 12px}
+.stat b{display:block;font-size:1.25rem}
+.stat span{font-size:.8rem;color:var(--mut)}
+button{font:inherit;border:0;border-radius:10px;padding:10px 18px;background:var(--ac);color:var(--acx);cursor:pointer;font-weight:600}
+button.s{background:var(--bg);color:var(--tx);border:1px solid var(--bd)}
+button:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.msg{margin-top:10px;font-size:.95rem}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--bd)}
+.w{color:var(--bad);text-decoration:line-through}.r{color:var(--ok);font-weight:700}
+.y{background:var(--warn);padding:0 3px;border-radius:3px}
+select{font:inherit;background:var(--bg);color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:4px}
+</style>
+</head>
+<body>
+<main>
+<h1>✍️ বাংলা বানান প্রুফরিডার</h1>
+<p class="sub">.docx ফাইল দিন — ভুল বানান কেটে যাবে, পাশে সঠিক বানান বোল্ড হয়ে বসবে। সব কাজ আপনার ব্রাউজারেই হয়, ফাইল কোথাও আপলোড হয় না।</p>
+
+<div class="grid">
+ <div class="card"><h2>১. বাংলা অভিধান</h2>
+  <label class="f" id="d1"><b>ফাইল বেছে নিন বা টেনে আনুন</b>.txt / .csv / .docx / .pdf<input type="file" id="fd" multiple accept=".txt,.csv,.docx,.pdf"></label>
+  <div class="names" id="nd"></div>
+  <div class="opt" style="margin-top:10px">পড়ার ধরন:
+   <select id="dm"><option value="1">প্রতি লাইনের প্রথম শব্দ</option><option value="0">ফাইলের সব শব্দ</option></select></div>
+  <div class="names" style="color:var(--mut)">💡 PDF অভিধান/বই হলে সাধারণত "ফাইলের সব শব্দ" বেছে নিন।</div>
+  <div class="names" style="color:var(--mut)">📏 ফাইল সাইজের কোনো নির্দিষ্ট সীমা নেই, তবে সব কাজ ব্রাউজারের মেমরিতে হয়। আনুমানিক: .txt/.csv প্রায় ২০ MB (১০ লাখের মতো শব্দ) পর্যন্ত স্বচ্ছন্দে চলবে; PDF প্রায় ৫০ MB বা কয়েকশ পাতা পর্যন্ত, তবে পড়তে সময় লাগবে। এর বেশি হলে পেজ ধীর হতে বা আটকে যেতে পারে।</div>
+ </div>
+ <div class="card"><h2>২. আপনার প্রমিত বানান</h2>
+  <label class="f" id="d2"><b>ফাইল বেছে নিন বা টেনে আনুন</b>.txt / .csv / .json / .docx / .pdf<input type="file" id="fc" multiple accept=".txt,.csv,.json,.docx,.pdf"></label>
+  <div class="names" id="nc"></div>
+  <details style="margin-top:10px"><summary>➕ দ্রুত সংশোধন যোগ করুন</summary>
+   <textarea id="qk" placeholder="প্রতি লাইনে: ভুল → সঠিক&#10;অতিথী → অতিথি"></textarea></details>
+ </div>
+</div>
+
+<div class="card"><h2>৩. প্রুফরিড করার ফাইল</h2>
+ <label class="f" id="d3"><b>.docx ফাইল বেছে নিন বা টেনে আনুন</b><input type="file" id="ff" accept=".docx"></label>
+ <div class="names" id="nf"></div>
+ <div class="stats">
+  <div class="stat"><b id="s1">0</b><span>অভিধানের শব্দ</span></div>
+  <div class="stat"><b id="s2">0</b><span>ভুল→সঠিক জোড়া</span></div>
+  <div class="stat"><b id="s3">0</b><span>আপনার সঠিক শব্দ</span></div>
+ </div>
+ <div style="margin-top:12px">
+  <label class="opt"><input type="checkbox" id="o1" checked> অভিধান থেকে স্বয়ংক্রিয় সংশোধন (সম্ভাব্য সঠিক শব্দ একটিই হলে)</label>
+  <label class="opt"><input type="checkbox" id="o2" checked> অজানা শব্দ হলুদ হাইলাইট করুন</label>
+  <label class="opt"><input type="checkbox" id="o3" checked> ভুল লাল, সঠিক সবুজ রঙে দেখান</label>
+ </div>
+ <div class="row"><button id="go" disabled>🔍 প্রুফরিডিং শুরু করুন</button></div>
+ <div class="msg" id="msg"></div>
+</div>
+
+<div class="card" id="res" hidden>
+ <h2 id="rt"></h2>
+ <div class="row" style="margin:0 0 12px"><button id="dl">⬇️ সংশোধিত .docx</button><button class="s" id="dc">⬇️ রিপোর্ট (CSV)</button></div>
+ <div class="tw" id="tb"></div>
+</div>
+</main>
+
+<script>
+const W="http://schemas.openxmlformats.org/wordprocessingml/2006/main";
+const BN="\\u0980-\\u09E5\\u09F0\\u09F1";
+const WSRC=`[${BN}](?:[${BN}\\u200c\\u200d]*[${BN}])?`;
+const WRE=()=>new RegExp(WSRC,"g");
+const ALPHA=Array.from({length:0x09E4-0x0981},(_,i)=>String.fromCharCode(0x0981+i));
+const SUF=["গুলোকে","গুলোতে","গুলোর","গুলোও","গুলো","গুলির","গুলি","দেরকে","দেরও","দের","দিগের","েরা","ের","েকে","কে","রা","তে","টাকে","টার","টায়","টা","টির","টিকে","টি","খানা","খানি","য়","ে","র","এর","ও","ই","কেই","দেরই","েও"].sort((a,b)=>b.length-a.length);
+const $=id=>document.getElementById(id);
+const norm=w=>w.normalize("NFC").replace(/[\u200c\u200d]/g,"").replace(/\u09c7\u09be/g,"\u09cb").replace(/\u09c7\u09d7/g,"\u09cc");
+let DICT=new Set(),MAP=new Map(),KNOWN=new Set(),docFile=null,OUT=null;
+
+const TC=new Map();let PW=[];
+async function readText(f){
+  const key=f.name+"|"+f.size+"|"+f.lastModified;
+  if(TC.has(key))return TC.get(key);
+  let t="";
+  try{t=await readText0(f)}catch(e){t=""}
+  if(f.name.toLowerCase().endsWith(".pdf")&&((t.match(new RegExp("["+BN+"]","g"))||[]).length<20))PW.push(f.name);
+  TC.set(key,t);return t;
+}
+async function readPdf(f){
+  if(!window.pdfjsLib)throw new Error("pdf");
+  pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  const pdf=await pdfjsLib.getDocument({data:new Uint8Array(await f.arrayBuffer())}).promise;
+  let out="";
+  for(let i=1;i<=pdf.numPages;i++){
+    const c=await(await pdf.getPage(i)).getTextContent();
+    for(const it of c.items){out+=it.str;if(it.hasEOL)out+="\n"}
+    out+="\n";
+  }
+  return out;
+}
+async function readText0(f){
+  if(f.name.toLowerCase().endsWith(".pdf"))return readPdf(f);
+  if(f.name.toLowerCase().endsWith(".docx")){
+    const z=await JSZip.loadAsync(await f.arrayBuffer());
+    const x=await z.file("word/document.xml").async("string");
+    return x.replace(/<\/w:p>/g,"\n").replace(/<w:tab\/>/g,"\t").replace(/<[^>]+>/g,"").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&amp;/g,"&");
+  }
+  const b=await f.arrayBuffer();
+  try{return new TextDecoder("utf-8",{fatal:true}).decode(b).replace(/^\uFEFF/,"")}
+  catch(e){return new TextDecoder("utf-16le").decode(b)}
+}
+async function refresh(){
+  PW=[];$("msg").textContent="ফাইল পড়া হচ্ছে…";
+  DICT=new Set();MAP=new Map();KNOWN=new Set();
+  const first=$("dm").value==="1";
+  for(const f of $("fd").files){
+    for(const line of (await readText(f)).split(/\r?\n/)){
+      if(first){const m=line.trim().split(/[\t,;|]/)[0].match(new RegExp(WSRC));if(m)DICT.add(norm(m[0]))}
+      else for(const m of line.matchAll(WRE()))DICT.add(norm(m[0]));
+    }
+  }
+  const addLine=l=>{
+    l=l.trim().replace(/^\uFEFF/,"");if(!l||l[0]==="#")return;
+    const p=l.split(/\s*(?:→|=>|->|=|,|;|\t|:|\|)\s*/);
+    if(p.length>=2){
+      const m=p[0].match(new RegExp(WSRC)),right=p.slice(1).join(" ").trim();
+      if(m&&right){const w=norm(m[0]);if(w!==norm(right))MAP.set(w,right);
+        for(const x of right.matchAll(WRE()))KNOWN.add(norm(x[0]));return}
+    }
+    for(const x of l.matchAll(WRE()))KNOWN.add(norm(x[0]));
+  };
+  for(const f of $("fc").files){
+    if(f.name.toLowerCase().endsWith(".json")){
+      try{const o=JSON.parse(await readText(f));for(const[k,v]of Object.entries(o))if(typeof v==="string"&&norm(k)!==norm(v)){MAP.set(norm(k),v);for(const x of v.matchAll(WRE()))KNOWN.add(norm(x[0]))}}catch(e){}
+    } else (await readText(f)).split(/\r?\n/).forEach(addLine);
+  }
+  $("qk").value.split(/\r?\n/).forEach(addLine);
+  $("s1").textContent=DICT.size.toLocaleString("bn");$("s2").textContent=MAP.size.toLocaleString("bn");$("s3").textContent=KNOWN.size.toLocaleString("bn");
+  $("nd").textContent=[...$("fd").files].map(f=>f.name).join("، ");
+  $("nc").textContent=[...$("fc").files].map(f=>f.name).join("، ");
+  $("go").disabled=!(docFile&&(DICT.size||MAP.size));
+  $("msg").textContent=(PW.length?"⚠️ এই PDF থেকে বাংলা লেখা পড়া যায়নি (স্ক্যান করা ছবি বা পুরনো ফন্ট হতে পারে): "+PW.join("، ")+" — .txt বা .docx দিন। ":"")+((!DICT.size&&MAP.size)?"অভিধান দেওয়া হয়নি — শুধু আপনার তালিকার ভুলগুলো সংশোধিত হবে।":"");
+}
+
+function makeChecker(sug){
+  const words=new Set([...DICT,...KNOWN]),hasDict=DICT.size>0,cache=new Map();
+  const known=w=>{if(words.has(w))return true;for(const s of SUF)if(w.endsWith(s)&&w.length-s.length>=2&&words.has(w.slice(0,-s.length)))return true;return false};
+  function*e1(w){for(let i=0;i<=w.length;i++){const a=w.slice(0,i),b=w.slice(i);
+    if(b)yield a+b.slice(1);if(b.length>1)yield a+b[1]+b[0]+b.slice(2);
+    for(const c of ALPHA){if(b)yield a+c+b.slice(1);yield a+c+b}}}
+  const run=w=>{
+    if(w.length<2)return{s:"ok"};
+    if(MAP.has(w))return{s:"fix",f:MAP.get(w),src:"আপনার তালিকা"};
+    for(const s of SUF)if(w.endsWith(s)&&w.length-s.length>=2){const st=w.slice(0,-s.length);if(MAP.has(st))return{s:"fix",f:MAP.get(st)+s,src:"আপনার তালিকা"}}
+    if(known(w)||!hasDict)return{s:"ok"};
+    if(sug)for(const s of [""].concat(SUF)){
+      if(s&&!w.endsWith(s))continue;
+      const st=s?w.slice(0,-s.length):w;if(st.length<3)continue;
+      const f=[...new Set([...e1(st)].filter(c=>words.has(c)))].sort();
+      if(f.length===1)return{s:"fix",f:f[0]+s,src:"অভিধান"};
+      if(f.length>1)return{s:"amb",f:f.slice(0,5).map(x=>x+s).join("، "),src:"একাধিক সম্ভাবনা"};
+    }
+    return{s:"unk",f:"",src:"অজানা শব্দ"};
+  };
+  return raw=>{const w=norm(raw);if(!cache.has(w))cache.set(w,run(w));return cache.get(w)};
+}
+
+const ORDER=["rStyle","rFonts","b","bCs","i","iCs","caps","smallCaps","strike","dstrike","outline","shadow","emboss","imprint","noProof","snapToGrid","vanish","webHidden","color","spacing","w","kern","position","sz","szCs","highlight","u","effect","bdr","shd","fitText","vertAlign","rtl","cs","em","lang","eastAsianLayout","specVanish","oMath"];
+function setProps(rp,list){
+  const d=rp.ownerDocument;
+  for(const[n,v]of list){
+    [...rp.childNodes].filter(c=>c.localName===n).forEach(c=>rp.removeChild(c));
+    const e=d.createElementNS(W,"w:"+n);if(v)e.setAttributeNS(W,"w:val",v);rp.appendChild(e);
+  }
+  const kids=[...rp.childNodes].map((c,i)=>[c,i]).sort((a,b)=>{
+    const x=ORDER.indexOf(a[0].localName),y=ORDER.indexOf(b[0].localName);return(x<0?999:x)-(y<0?999:y)||a[1]-b[1]});
+  kids.forEach(([c])=>rp.appendChild(c));
+}
+function procRun(r,rep,o,ck){
+  const el=n=>n.nodeType===1&&n.namespaceURI===W;
+  const kids=[...r.childNodes].filter(n=>n.nodeType===1&&!(el(n)&&n.localName==="rPr"));
+  if(!kids.length||kids.some(n=>!(el(n)&&n.localName==="t")))return;
+  const text=kids.map(n=>n.textContent).join("");
+  const segs=[];let pos=0,ch=false;
+  for(const m of text.matchAll(WRE())){
+    const x=ck(m[0]);if(x.s==="ok")continue;
+    segs.push([text.slice(pos,m.index),"p"]);pos=m.index+m[0].length;
+    const key=[m[0],x.f||"",x.src].join("\u0001");
+    if(x.s==="fix"){segs.push([m[0],"w"],[" ["+x.f+"]","r"]);rep.set(key,(rep.get(key)||0)+1);ch=true}
+    else if(o.unk){segs.push([m[0],"y"]);rep.set(key,(rep.get(key)||0)+1);ch=true}
+    else segs.push([m[0],"p"]);
+  }
+  if(!ch)return;
+  segs.push([text.slice(pos),"p"]);
+  const d=r.ownerDocument;
+  for(const[t,k]of segs){
+    if(!t)continue;
+    const n=r.cloneNode(true);
+    [...n.childNodes].forEach(c=>{if(!(el(c)&&c.localName==="rPr"))n.removeChild(c)});
+    let rp=[...n.childNodes].find(c=>c.localName==="rPr");
+    if(!rp){rp=d.createElementNS(W,"w:rPr");n.insertBefore(rp,n.firstChild)}
+    if(k==="w")setProps(rp,[["strike",""]].concat(o.col?[["color","C00000"]]:[]));
+    if(k==="r")setProps(rp,[["b",""],["bCs",""]].concat(o.col?[["color","007A33"]]:[]));
+    if(k==="y")setProps(rp,[["highlight","yellow"]]);
+    const te=d.createElementNS(W,"w:t");
+    te.setAttributeNS("http://www.w3.org/XML/1998/namespace","xml:space","preserve");
+    te.textContent=t;n.appendChild(te);
+    r.parentNode.insertBefore(n,r);
+  }
+  r.parentNode.removeChild(r);
+}
+async function processDoc(file,o){
+  const zip=await JSZip.loadAsync(await file.arrayBuffer());
+  const ck=makeChecker(o.sug),rep=new Map();
+  const parts=Object.keys(zip.files).filter(n=>/^word\/(document|header\d*|footer\d*)\.xml$/.test(n));
+  for(const p of parts){
+    const xml=await zip.file(p).async("string");
+    const doc=new DOMParser().parseFromString(xml,"application/xml");
+    Array.from(doc.getElementsByTagNameNS(W,"r")).forEach(r=>procRun(r,rep,o,ck));
+    let s=new XMLSerializer().serializeToString(doc);
+    if(!s.startsWith("<?xml"))s='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+s;
+    zip.file(p,s);
+  }
+  const blob=await zip.generateAsync({type:"blob",compression:"DEFLATE",mimeType:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"});
+  return{blob,rep};
+}
+
+function cell(tr,txt,cls){const td=document.createElement("td");td.textContent=txt;if(cls)td.className=cls;tr.appendChild(td)}
+function render(rep){
+  const rows=[...rep].map(([k,n])=>{const[a,b,c]=k.split("\u0001");return{a,b,c,n}}).sort((x,y)=>y.n-x.n);
+  const fx=rows.filter(r=>r.c==="আপনার তালিকা"||r.c==="অভিধান"),fl=rows.filter(r=>!fx.includes(r));
+  const sum=l=>l.reduce((s,r)=>s+r.n,0);
+  $("rt").textContent=`✅ সম্পন্ন — সংশোধন: ${sum(fx)} টি | সন্দেহজনক (হলুদ): ${sum(fl)} টি`;
+  const t=document.createElement("table"),h=t.insertRow();
+  ["মূল শব্দ","সঠিক / পরামর্শ","উৎস","কতবার"].forEach(x=>{const th=document.createElement("th");th.textContent=x;h.appendChild(th)});
+  for(const r of fx.concat(fl)){const tr=t.insertRow();const bad=fx.includes(r);
+    cell(tr,r.a,bad?"w":"y");cell(tr,r.b,bad?"r":"");cell(tr,r.c);cell(tr,String(r.n))}
+  $("tb").replaceChildren(t);$("res").hidden=false;return rows;
+}
+async function save(name,data){
+  const dl=await claude.use("downloads");
+  if(!dl){$("msg").textContent="এই ভিউতে ডাউনলোড চালু নেই — লিংকটি claude.ai-তে খুলে চেষ্টা করুন।";return}
+  try{await dl.save({filename:name,data})}catch(e){if(e.code!=="declined")$("msg").textContent="ডাউনলোড হয়নি ("+(e.code||"error")+")"}
+}
+let ROWS=[];
+$("go").onclick=async()=>{
+  $("go").disabled=true;$("msg").textContent="প্রসেস হচ্ছে…";$("res").hidden=true;
+  try{
+    await refresh();
+    OUT=await processDoc(docFile,{sug:$("o1").checked,unk:$("o2").checked,col:$("o3").checked});
+    ROWS=render(OUT.rep);$("msg").textContent="";
+  }catch(e){$("msg").textContent="ফাইলটি প্রসেস করা যায়নি: "+e.message}
+  $("go").disabled=false;
+};
+const base=()=>docFile.name.replace(/\.docx$/i,"");
+$("dl").onclick=()=>OUT&&save(base()+"_proofread.docx",OUT.blob);
+$("dc").onclick=()=>{
+  const q=s=>'"'+String(s).replace(/"/g,'""')+'"';
+  const csv="\uFEFF"+["মূল শব্দ,সঠিক / পরামর্শ,উৎস,কতবার"].concat(ROWS.map(r=>[r.a,r.b,r.c,r.n].map(q).join(","))).join("\n");
+  save(base()+"_report.csv",csv);
+};
+["fd","fc","dm","qk"].forEach(i=>$(i).addEventListener(i==="qk"?"input":"change",refresh));
+$("ff").onchange=e=>{docFile=e.target.files[0]||null;$("nf").textContent=docFile?docFile.name:"";refresh()};
+[["d1","fd"],["d2","fc"],["d3","ff"]].forEach(([l,i])=>{
+  const L=$(l);
+  L.addEventListener("dragover",e=>{e.preventDefault();L.classList.add("drag")});
+  L.addEventListener("dragleave",()=>L.classList.remove("drag"));
+  L.addEventListener("drop",e=>{e.preventDefault();L.classList.remove("drag");$(i).files=e.dataTransfer.files;$(i).dispatchEvent(new Event("change"))});
+});
+refresh();
+</script>
+</body>
+</html>
