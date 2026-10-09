@@ -74,6 +74,7 @@ select{font:inherit;background:var(--bg);color:var(--tx);border:1px solid var(--
   <label class="f" id="d1"><b>ফাইল বেছে নিন বা টেনে আনুন</b>.txt / .csv / .docx / .pdf · একাধিক ফাইল যোগ করা যাবে<input type="file" id="fd" multiple accept=".txt,.csv,.docx,.pdf"></label>
   <div class="names" id="nd"></div>
   <div class="names" id="ds" style="color:var(--mut)"></div>
+  <label class="opt" id="o5w" hidden><input type="checkbox" id="o5"> শুধু আমার অভিধান ব্যবহার করুন (সাইটের ডিফল্ট অভিধান বাদ)</label>
   <div class="opt" style="margin-top:10px">পড়ার ধরন:
    <select id="dm"><option value="0">ফাইলের সব শব্দ</option><option value="1">প্রতি লাইনের প্রথম শব্দ (অর্থসহ অভিধান হলে)</option></select></div>
   <div class="names" style="color:var(--mut)">💡 সাধারণত "ফাইলের সব শব্দ" ঠিক। অভিধানে শব্দের পাশে অর্থও লেখা থাকলে "প্রথম শব্দ" বেছে নিন।</div>
@@ -97,7 +98,7 @@ select{font:inherit;background:var(--bg);color:var(--tx);border:1px solid var(--
   <div class="stat"><b id="s3">0</b><span>আপনার সঠিক শব্দ</span></div>
  </div>
  <div style="margin-top:12px">
-  <label class="opt"><input type="checkbox" id="o1"> অভিধান থেকে মিললে নিজে থেকে বদলে দিন (অভিধান ভালো না হলে ভুল হতে পারে, তাই বন্ধ রাখাই নিরাপদ)</label>
+  <label class="opt"><input type="checkbox" id="o1" checked> অভিধান থেকে সম্ভাব্য সঠিক বানান বসান (যখন একটাই সম্ভাবনা থাকে; কাটা শব্দের পাশে [সঠিক] বসবে)</label>
   <label class="opt"><input type="checkbox" id="o2" checked> সন্দেহজনক শব্দ হলুদ করুন (যেগুলোর কাছাকাছি সঠিক শব্দ অভিধানে আছে; পরামর্শ নিচের তালিকায়)</label>
   <label class="opt"><input type="checkbox" id="o4"> অভিধানে একেবারেই নেই এমন সব শব্দও হলুদ করুন (নাম, ক্রিয়ার রূপ ইত্যাদিও আসতে পারে, তাই বেশি হলুদ হবে)</label>
   <label class="opt"><input type="checkbox" id="o3" checked> ভুল লাল, সঠিক সবুজ রঙে দেখান</label>
@@ -263,11 +264,14 @@ function handleFiles(id,files){
 let CK={},READY=null;const AIC=new Map();
 function getCk(sug){const k=sug?1:0;return CK[k]||(CK[k]=makeChecker(sug))}
 async function refresh(){
+  HSON=!(FD.length&&$("o5").checked);$("o5w").hidden=FD.length===0;
+  const same=f=>docFile&&fkey(f)===fkey(docFile);let dup=false;
   CK={};PW=[];$("msg").textContent="ফাইল পড়া হচ্ছে…";
   DICT=new Set();MAP=new Map();KNOWN=new Set();
   const first=$("dm").value==="1";
   for(const line of BASE.d.split(/\r?\n/)){const m=line.trim().split(/[\t,;|]/)[0].match(new RegExp(WSRC));if(m)DICT.add(norm(m[0]))}
   for(const f of FD){
+    if(same(f)){dup=true;continue}
     const pdf=/\.pdf$/i.test(f.name);
     for(const line of (await readText(f)).split(/\r?\n/)){
       if(first&&!pdf){const m=line.trim().split(/[\t,;|]/)[0].match(new RegExp(WSRC));if(m)DICT.add(norm(m[0]))}
@@ -286,6 +290,7 @@ async function refresh(){
   };
   BASE.c.split(/\r?\n/).forEach(addLine);
   for(const f of FC){
+    if(same(f)){dup=true;continue}
     if(f.name.toLowerCase().endsWith(".json")){
       try{const o=JSON.parse(await readText(f));for(const[k,v]of Object.entries(o))if(typeof v==="string"&&norm(k)!==norm(v)){MAP.set(norm(k),v);for(const x of v.matchAll(WRE()))KNOWN.add(norm(x[0]))}}catch(e){}
     } else (await readText(f)).split(/\r?\n/).forEach(addLine);
@@ -294,14 +299,14 @@ async function refresh(){
   $("dlr").hidden=!(HS||BASE.c);$("dd").hidden=!HS;$("dp").hidden=!BASE.c;
   {const a=[...DICT],st=Math.max(1,Math.floor(a.length/10));$("ds").textContent=a.length?"অভিধান থেকে পড়া নমুনা শব্দ: "+a.filter((_,i)=>i%st===0).slice(0,10).join("، "):""}
   $("qn").textContent=(BASE.d||BASE.c)?"✔ সাইটের ডিফল্ট অভিধান/বানান-তালিকা লোড আছে।":"💡 অভিধান বা তালিকা না থাকলে নিচে ফাইল দিন।";
-  $("s1").textContent=((HS?HS.dic.size:0)+DICT.size).toLocaleString("bn");$("s2").textContent=MAP.size.toLocaleString("bn");$("s3").textContent=KNOWN.size.toLocaleString("bn");
+  $("s1").textContent=((HS&&HSON?HS.dic.size:0)+DICT.size).toLocaleString("bn");$("s2").textContent=MAP.size.toLocaleString("bn");$("s3").textContent=KNOWN.size.toLocaleString("bn");
   chips($("nd"),FD,i=>{FD.splice(i,1);refresh()},()=>{FD=[];refresh()});
   chips($("nc"),FC,i=>{FC.splice(i,1);refresh()},()=>{FC=[];refresh()});
   $("go").disabled=!docFile;
-  $("msg").textContent=(PW.length?"⚠️ PDF থেকে বাংলা লেখা সঠিকভাবে পড়া যায়নি: "+PW.join("، ")+" — একই ফাইলের .txt বা .docx সংস্করণ দিন। ":"")+((!DICT.size&&MAP.size)?"অভিধান দেওয়া হয়নি — শুধু আপনার তালিকার ভুলগুলো সংশোধিত হবে।":"");
+  $("msg").textContent=(dup?"⚠️ প্রুফরিডের ফাইলটা তালিকাতেও দেওয়া ছিল — ওটা তালিকা হিসেবে ধরা হয়নি। ":"")+(PW.length?"⚠️ PDF থেকে বাংলা লেখা সঠিকভাবে পড়া যায়নি: "+PW.join("، ")+" — একই ফাইলের .txt বা .docx সংস্করণ দিন। ":"")+((!DICT.size&&MAP.size)?"অভিধান দেওয়া হয়নি — শুধু আপনার তালিকার ভুলগুলো সংশোধিত হবে।":"");
 }
 
-let HS=null;
+let HS=null,HSON=true;
 function buildHS(j){
   const dic=new Map();
   for(const line of j.d.split("\n")){if(!line)continue;const i=line.indexOf("/"),w=i<0?line:line.slice(0,i),f=i<0?"":line.slice(i+1);dic.set(w,(dic.get(w)||"")+f)}
@@ -341,16 +346,25 @@ function der(y,f,depth){
   return sfxMatch(y,(z,r)=>r.fl.includes(f)&&der(z,r.f,depth+1))||pfxMatch(y,(z,r)=>r.fl.includes(f)&&der(z,r.f,depth+1));
 }
 function hsKnown(w){
-  if(!HS)return false;
+  if(!HS||!HSON)return false;
   if(HS.dic.has(w))return true;
   if(sfxMatch(w,(y,r)=>der(y,r.f,0)))return true;
   if(pfxMatch(w,(y,r)=>der(y,r.f,0)))return true;
   return pfxMatch(w,(y,p)=>p.cp&&sfxMatch(y,(z,r)=>r.cp&&hsHas(z,r.f)&&hsHas(z,p.f)));
 }
+const PAIRS=[["ি","ী"],["ু","ূ"],["শ","ষ"],["শ","স"],["ষ","স"],["ন","ণ"],["জ","য"],["ত","ৎ"],["ই","ঈ"],["উ","ঊ"]];
+function confus(a,b){
+  if(a.length!==b.length)return false;
+  const d=[];for(let i=0;i<a.length;i++)if(a[i]!==b[i])d.push([a[i],b[i]]);
+  return d.length===1&&PAIRS.some(p=>(p[0]===d[0][0]&&p[1]===d[0][1])||(p[1]===d[0][0]&&p[0]===d[0][1]));
+}
 function makeChecker(sug){
-  const words=new Set([...DICT,...KNOWN]),hasDict=DICT.size>0||!!HS,cache=new Map();
-  const isStem=c=>(words.has(c)||(HS&&HS.dic.has(c)))?1:0;
-  const known=w=>{if(words.has(w)||hsKnown(w))return true;for(const s of SUF)if(w.endsWith(s)&&w.length-s.length>=2){const t=w.slice(0,-s.length);if(words.has(t)||hsKnown(t))return true}return false};
+  const words=new Set([...DICT,...KNOWN]),hasDict=DICT.size>0||!!(HS&&HSON),cache=new Map();
+  const isStem=c=>(words.has(c)||(HS&&HSON&&HS.dic.has(c)))?1:0;
+  const known=w=>{if(words.has(w)||hsKnown(w))return true;for(const s of SUF)if(w.endsWith(s)&&w.length-s.length>=2){const t=w.slice(0,-s.length);if(words.has(t)||hsKnown(t))return true}
+    return false};
+  const base=x=>words.has(x)||hsKnown(x);
+  const comp=w=>{if(w.length<5)return false;for(let i=2;i<=w.length-2;i++)if(base(w.slice(0,i))&&base(w.slice(i)))return true;return false};
   function*e1(w){for(let i=0;i<=w.length;i++){const a=w.slice(0,i),b=w.slice(i);
     if(b)yield a+b.slice(1);if(b.length>1)yield a+b[1]+b[0]+b.slice(2);
     for(const c of ALPHA){if(b)yield a+c+b.slice(1);yield a+c+b}}}
@@ -359,14 +373,16 @@ function makeChecker(sug){
     if(MAP.has(w))return{s:"fix",f:MAP.get(w),src:"আপনার তালিকা"};
     for(const s of SUF)if(w.endsWith(s)&&w.length-s.length>=2){const st=w.slice(0,-s.length);if(MAP.has(st))return{s:"fix",f:MAP.get(st)+s,src:"আপনার তালিকা"}}
     if(known(w)||!hasDict)return{s:"ok"};
+    const isComp=comp(w);
     for(const s of [""].concat(SUF)){
       if(s&&!w.endsWith(s))continue;
       const st=s?w.slice(0,-s.length):w;if(st.length<3)continue;
       const f=[...new Set([...e1(st)].filter(c=>words.has(c)||hsKnown(c)))].sort((x,y)=>(isStem(y)-isStem(x))||x.localeCompare(y));
+      if(isComp&&!(f.length===1&&confus(w,f[0]+s)))return{s:"ok"};
       if(f.length===1&&sug)return{s:"fix",f:f[0]+s,src:"অভিধান"};
       if(f.length)return{s:"amb",f:f.slice(0,5).map(x=>x+s).join("، "),src:f.length===1?"সম্ভাব্য সঠিক":"একাধিক সম্ভাবনা"};
     }
-    return{s:"unk",f:"",src:"অজানা শব্দ"};
+    return isComp?{s:"ok"}:{s:"unk",f:"",src:"অজানা শব্দ"};
   };
   return raw=>{const w=norm(raw);if(!cache.has(w))cache.set(w,run(w));return cache.get(w)};
 }
@@ -480,8 +496,9 @@ let ROWS=[];
 $("go").onclick=async()=>{
   $("go").disabled=true;$("msg").textContent="প্রসেস হচ্ছে…";$("res").hidden=true;
   try{
+    if(READY)await READY;
     await refresh();
-    if(!DICT.size&&!MAP.size&&!KNOWN.size){$("msg").textContent="অন্তত একটি ফাইল দিন — অভিধান অথবা আপনার প্রমিত বানান ফাইল (যেকোনো একটি হলেই চলবে)।";return}
+    if(!DICT.size&&!(HS&&HSON)&&!MAP.size&&!KNOWN.size){$("msg").textContent="সাইটের অভিধান লোড হয়নি — নিজের অভিধান বা বানান ফাইল দিন।";return}
     OUT=await processDoc(docFile,{sug:$("o1").checked,unk:$("o2").checked,all:$("o4").checked,col:$("o3").checked});
     ROWS=render(OUT.rep);$("msg").textContent="";
   }catch(e){$("msg").textContent="ফাইলটি প্রসেস করা যায়নি: "+e.message}
@@ -496,6 +513,7 @@ $("dc").onclick=()=>{
 };
 $("fd").onchange=e=>{const a=[...e.target.files];e.target.value="";handleFiles("fd",a)};
 $("fc").onchange=e=>{const a=[...e.target.files];e.target.value="";handleFiles("fc",a)};
+$("o5").addEventListener("change",refresh);
 ["dm","qk"].forEach(i=>$(i).addEventListener(i==="qk"?"input":"change",refresh));
 $("ff").onchange=e=>{const a=[...e.target.files];e.target.value="";handleFiles("ff",a)};
 [["d1","fd"],["d2","fc"],["d3","ff"]].forEach(([l,i])=>{
