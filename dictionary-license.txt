@@ -1,0 +1,6 @@
+dictionary.txt and hunspell.json — Bengali spelling data
+Source: Bengali (Bangladesh) Hunspell dictionary "bn_BD" from the LibreOffice dictionaries project
+https://github.com/LibreOffice/dictionaries/tree/master/bn_BD
+Copyright 2018 Jacob Thomas, Bengal Creative Media LTD.
+Distributed under the GNU General Public License, version 2 (see COPYING in the source folder).
+Changes: converted to plain word list (dictionary.txt) and to JSON (hunspell.json: stems with flags + affix rules); Unicode normalised.
